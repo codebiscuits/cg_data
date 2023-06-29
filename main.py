@@ -6,12 +6,15 @@ from pprint import pprint
 import json
 import pandas as pd
 from datetime import datetime, timezone
+import time
+from pushbullet import Pushbullet
 
 cg = CoinGeckoAPI()
 pd.set_option('display.max_rows', None)
 pd.set_option('display.expand_frame_repr', False)
+# pb = Pushbullet('o.H4ZkitbaJgqx9vxo5kL2MMwnlANcloxT')
 
-folder = Path('//cg_data')
+folder = Path('/home/ross/coding/cg_data/cg_data')
 folder.mkdir(exist_ok=True)
 
 def top_300_returns():
@@ -127,9 +130,24 @@ def whole_market(save):
     if save:
         df.to_parquet(global_file)
 
+
 if __name__ == '__main__':
-    change_24h, change_7d = top_300_returns()
-    mcap_stats(change_24h, save=True)
-    indiv_stats(change_7d, save=True)
-    category_strength(save=True)
-    whole_market(save=True)
+    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    print(f"{now} Running Coingecko data collection")
+    all_start = time.perf_counter()
+    live = True
+    try:
+        change_24h, change_7d = top_300_returns()
+        mcap_stats(change_24h, save=live)
+        indiv_stats(change_7d, save=live)
+        category_strength(save=live)
+        whole_market(save=live)
+    except (ValueError, TypeError, KeyError) as e:
+        print('Error during data collection')
+        print(e)
+        # pb.push_note(now, 'Coingecko data collection had a problem')
+
+
+    all_end = time.perf_counter()
+    elapsed = all_end - all_start
+    print(f"Data collection complete, total time taken: {int(elapsed // 60)}m {elapsed % 60:.1f}s")
