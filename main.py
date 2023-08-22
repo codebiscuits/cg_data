@@ -1,20 +1,16 @@
 from pycoingecko import CoinGeckoAPI
 import statistics as stats
-from datetime import datetime
 from pathlib import Path
-from pprint import pprint
 import json
 import pandas as pd
 from datetime import datetime, timezone
 import time
-from pushbullet import Pushbullet
 
 cg = CoinGeckoAPI()
 pd.set_option('display.max_rows', None)
 pd.set_option('display.expand_frame_repr', False)
-# pb = Pushbullet('o.H4ZkitbaJgqx9vxo5kL2MMwnlANcloxT')
 
-folder = Path('/home/ross/coding/cg_data/cg_data')
+folder = Path('/home/ross/coding/cg_data')
 folder.mkdir(exist_ok=True)
 
 def top_300_returns():
