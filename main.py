@@ -51,11 +51,15 @@ def mcap_stats(change_24h, save):
     )
     mcap_new = pd.DataFrame(data=mcap_row, index=[0], columns=mcap_row.keys())
 
-    mcap_df = pd.read_parquet(folder / 'mcap_roc.parquet')
-    mcap_df = pd.concat([mcap_df, mcap_new], ignore_index=True)
+    mcap_roc_file = Path(folder / 'mcap_roc.parquet')
+    if mcap_roc_file.exists():
+        mcap_df = pd.read_parquet(mcap_roc_file)
+        mcap_df = pd.concat([mcap_df, mcap_new], ignore_index=True)
+    else:
+        mcap_df = mcap_new
 
     if save:
-        mcap_df.to_parquet(folder / 'mcap_roc.parquet')
+        mcap_df.to_parquet(mcap_roc_file)
 
 
 def indiv_stats(change_7d, save):
@@ -65,11 +69,15 @@ def indiv_stats(change_7d, save):
     indiv_row = {'date': now} | change_dict
     indiv_new = pd.DataFrame(data=indiv_row, index=[0], columns=[str(k) for k in indiv_row.keys()])
 
-    indiv_df = pd.read_parquet(folder / 'indiv_roc.parquet')
-    indiv_df = pd.concat([indiv_df, indiv_new], ignore_index=True)
+    indiv_file = Path(folder / 'indiv_roc.parquet')
+    if indiv_file.exists():
+        indiv_df = pd.read_parquet(indiv_file)
+        indiv_df = pd.concat([indiv_df, indiv_new], ignore_index=True)
+    else:
+        indiv_df = indiv_new
 
     if save:
-        indiv_df.to_parquet(folder / 'indiv_roc.parquet')
+        indiv_df.to_parquet(indiv_file)
 
 
 def category_strength(save):
@@ -118,10 +126,9 @@ def whole_market(save):
 
     if global_file.exists():
         old_data = pd.read_parquet(global_file)
+        df = pd.concat([old_data, global_row], ignore_index=True)
     else:
-        old_data = pd.DataFrame(columns=global_row.columns)
-
-    df = pd.concat([old_data, global_row], ignore_index=True)
+        df = pd.DataFrame(columns=global_row.columns)
 
     if save:
         df.to_parquet(global_file)
